@@ -2,7 +2,7 @@ import Table from '../common/Table'
 import IPRow from './IPRow'
 import Loading from '../common/Loading'
 
-function IPTable({ ips, isLoading, onDelete }) {
+function IPTable({ ips, isLoading, onDelete, onEdit }) {
   if (isLoading) {
     return <Loading text="Loading IPs..." />
   }
@@ -28,7 +28,7 @@ function IPTable({ ips, isLoading, onDelete }) {
       </Table.Head>
       <Table.Body>
         {ips.map((ip) => (
-          <IPRow key={ip.id} ip={ip} onDelete={onDelete} />
+          <IPRow key={ip.id} ip={ip} onDelete={onDelete} onEdit={onEdit} />
         ))}
       </Table.Body>
     </Table>

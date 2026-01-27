@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Modal from '../common/Modal'
 import Button from '../common/Button'
@@ -7,30 +7,33 @@ import { api } from '../../api/client'
 
 const SUGGESTED_TAGS = ['production', 'staging', 'development', 'external', 'internal', 'mail', 'web', 'api', 'database']
 
-function AddIPModal({ isOpen, onClose }) {
-  const [ipAddress, setIpAddress] = useState('')
+function EditIPModal({ isOpen, onClose, ip }) {
   const [description, setDescription] = useState('')
   const [tags, setTags] = useState([])
   const [error, setError] = useState('')
   const queryClient = useQueryClient()
 
-  const addMutation = useMutation({
-    mutationFn: api.addIP,
+  useEffect(() => {
+    if (ip) {
+      setDescription(ip.description || '')
+      setTags(ip.tags || [])
+    }
+  }, [ip])
+
+  const updateMutation = useMutation({
+    mutationFn: (data) => api.updateIP(ip.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ips'] })
-      queryClient.invalidateQueries({ queryKey: ['stats'] })
+      queryClient.invalidateQueries({ queryKey: ['ip', ip.id] })
       queryClient.invalidateQueries({ queryKey: ['activity'] })
       handleClose()
     },
     onError: (err) => {
-      setError(err.response?.data?.detail || err.response?.data?.error || 'Failed to add IP address')
+      setError(err.response?.data?.detail || err.response?.data?.error || 'Failed to update IP')
     },
   })
 
   const handleClose = () => {
-    setIpAddress('')
-    setDescription('')
-    setTags([])
     setError('')
     onClose()
   }
@@ -39,39 +42,27 @@ function AddIPModal({ isOpen, onClose }) {
     e.preventDefault()
     setError('')
 
-    // Basic IP validation (IPv4 and IPv6)
-    const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
-    const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::(?:[0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}$|^(?:[0-9a-fA-F]{1,4}:){1,7}:$/
-
-    if (!ipv4Regex.test(ipAddress) && !ipv6Regex.test(ipAddress)) {
-      setError('Please enter a valid IP address')
-      return
-    }
-
-    addMutation.mutate({
-      ip_address: ipAddress,
-      description: description || undefined,
-      tags: tags.length > 0 ? tags : undefined,
+    updateMutation.mutate({
+      description: description || null,
+      tags: tags,
     })
   }
 
+  if (!ip) return null
+
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Add IP Address">
+    <Modal isOpen={isOpen} onClose={handleClose} title="Edit IP Address">
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
           <div>
-            <label htmlFor="ip" className="block text-sm font-medium text-gray-700 mb-1">
-              IP Address <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              IP Address
             </label>
             <input
               type="text"
-              id="ip"
-              value={ipAddress}
-              onChange={(e) => setIpAddress(e.target.value)}
-              className="input"
-              placeholder="192.168.1.1 or 2001:db8::1"
-              required
-              autoFocus
+              value={ip.ip_address}
+              className="input bg-gray-50"
+              disabled
             />
           </div>
 
@@ -97,7 +88,7 @@ function AddIPModal({ isOpen, onClose }) {
               value={tags}
               onChange={setTags}
               suggestions={SUGGESTED_TAGS}
-              placeholder="Add tags for organization..."
+              placeholder="Add tags..."
             />
           </div>
 
@@ -112,8 +103,8 @@ function AddIPModal({ isOpen, onClose }) {
           <Button type="button" variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
-          <Button type="submit" loading={addMutation.isPending}>
-            Add IP
+          <Button type="submit" loading={updateMutation.isPending}>
+            Save Changes
           </Button>
         </div>
       </form>
@@ -121,4 +112,4 @@ function AddIPModal({ isOpen, onClose }) {
   )
 }
 
-export default AddIPModal
+export default EditIPModal

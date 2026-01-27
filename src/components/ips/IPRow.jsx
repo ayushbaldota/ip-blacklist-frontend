@@ -1,17 +1,16 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Trash2, Eye, MoreVertical } from 'lucide-react'
+import { Trash2, Eye, Pencil } from 'lucide-react'
 import StatusBadge from './StatusBadge'
 import Table from '../common/Table'
+import { TagList } from '../common/TagInput'
 
 function formatDate(dateString) {
   if (!dateString) return 'Never'
   return new Date(dateString).toLocaleString()
 }
 
-function IPRow({ ip, onDelete }) {
+function IPRow({ ip, onDelete, onEdit }) {
   const navigate = useNavigate()
-  const [showMenu, setShowMenu] = useState(false)
 
   const handleViewDetails = () => {
     navigate(`/ips/${ip.id}`)
@@ -22,31 +21,53 @@ function IPRow({ ip, onDelete }) {
     onDelete(ip)
   }
 
+  const handleEdit = (e) => {
+    e.stopPropagation()
+    onEdit(ip)
+  }
+
   return (
     <Table.Row onClick={handleViewDetails} className="group">
       <Table.Cell>
-        <span className="font-mono font-medium">{ip.ip_address}</span>
+        <div>
+          <span className="font-mono font-medium">{ip.ip_address}</span>
+          {ip.tags && ip.tags.length > 0 && (
+            <div className="mt-1">
+              <TagList tags={ip.tags.slice(0, 3)} size="sm" />
+              {ip.tags.length > 3 && (
+                <span className="text-xs text-gray-400 ml-1">+{ip.tags.length - 3}</span>
+              )}
+            </div>
+          )}
+        </div>
       </Table.Cell>
       <Table.Cell>
         <StatusBadge status={ip.status} />
       </Table.Cell>
-      <Table.Cell className="text-gray-500">
+      <Table.Cell className="text-gray-500 max-w-[200px] truncate">
         {ip.description || '-'}
       </Table.Cell>
       <Table.Cell className="text-gray-500">
         {formatDate(ip.last_checked)}
       </Table.Cell>
       <Table.Cell className="text-gray-500">
-        {ip.blacklist_count || 0}
+        {ip.blacklist_count || ip.listings || 0}
       </Table.Cell>
       <Table.Cell>
-        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={handleViewDetails}
             className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded"
             title="View Details"
           >
             <Eye className="h-4 w-4" />
+          </button>
+          <button
+            onClick={handleEdit}
+            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+            title="Edit"
+          >
+            <Pencil className="h-4 w-4" />
           </button>
           <button
             onClick={handleDelete}

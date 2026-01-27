@@ -18,9 +18,15 @@ client.interceptors.request.use((config) => {
   return config
 })
 
-// Response interceptor for error handling
+// Response interceptor for error handling and data unwrapping
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Unwrap the 'data' property from API responses
+    if (response.data && response.data.data !== undefined) {
+      response.data = response.data.data
+    }
+    return response
+  },
   (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized - could redirect to login or show modal
