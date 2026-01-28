@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Shield, Lock, User, AlertCircle } from 'lucide-react'
+import { Shield, Key, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/common/Button'
 
 function Login() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [apiKey, setApiKey] = useState('')
+  const [showKey, setShowKey] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -21,15 +21,17 @@ function Login() {
     setError('')
     setLoading(true)
 
-    // Small delay for UX
-    await new Promise(resolve => setTimeout(resolve, 300))
+    try {
+      const result = await login(apiKey)
 
-    const result = login(username, password)
-
-    if (result.success) {
-      navigate(from, { replace: true })
-    } else {
-      setError(result.error)
+      if (result.success) {
+        navigate(from, { replace: true })
+      } else {
+        setError(result.error)
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.')
+    } finally {
       setLoading(false)
     }
   }
@@ -43,7 +45,7 @@ function Login() {
             <Shield className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">IP Blacklist Monitor</h1>
-          <p className="text-gray-500 mt-1">Sign in to access the dashboard</p>
+          <p className="text-gray-500 mt-1">Enter your API key to access the dashboard</p>
         </div>
 
         {/* Login Card */}
@@ -57,47 +59,37 @@ function Login() {
               </div>
             )}
 
-            {/* Username */}
+            {/* API Key */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Username
+                API Key
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <Key className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="input pl-10"
-                  placeholder="Enter username"
+                  type={showKey ? 'text' : 'password'}
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  className="input pl-10 pr-10"
+                  placeholder="Enter your API key"
                   required
-                  autoComplete="username"
+                  autoComplete="off"
                   autoFocus
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowKey(!showKey)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  aria-label={showKey ? 'Hide API key' : 'Show API key'}
+                >
+                  {showKey ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input pl-10"
-                  placeholder="Enter password"
-                  required
-                  autoComplete="current-password"
-                />
-              </div>
+              <p className="mt-1.5 text-xs text-gray-500">
+                Contact your administrator to obtain an API key.
+              </p>
             </div>
 
             {/* Submit Button */}
@@ -105,6 +97,7 @@ function Login() {
               type="submit"
               className="w-full justify-center"
               loading={loading}
+              disabled={!apiKey.trim()}
             >
               Sign In
             </Button>
