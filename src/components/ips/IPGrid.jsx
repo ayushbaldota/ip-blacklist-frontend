@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { RefreshCw, Trash2, Loader2, Pencil, AlertTriangle, CheckCircle, Clock, Globe } from 'lucide-react'
+import { RefreshCw, Trash2, Loader2, Pencil, AlertTriangle, CheckCircle, Clock, Globe, Bell, BellOff } from 'lucide-react'
 import { api } from '../../api/client'
 import EditIPModal from './EditIPModal'
 
@@ -43,6 +43,13 @@ function IPGridRow({ ip, onDelete, onEdit }) {
       }, 3000)
     },
     onError: () => setIsChecking(false),
+  })
+
+  const muteMutation = useMutation({
+    mutationFn: () => ip.notifications_muted ? api.unmuteIP(ip.ip_address) : api.muteIP(ip.ip_address),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ips'] })
+    },
   })
 
   // Get blacklisted providers from blacklist_sources
@@ -117,6 +124,11 @@ function IPGridRow({ ip, onDelete, onEdit }) {
                   {ip.name}
                 </span>
               )}
+              {ip.notifications_muted && (
+                <span className="text-xs text-orange-500" title="Notifications muted">
+                  <BellOff className="h-3 w-3" />
+                </span>
+              )}
               {isChecking && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
             </div>
             <div className="text-xs mt-0.5">
@@ -166,6 +178,18 @@ function IPGridRow({ ip, onDelete, onEdit }) {
             title="Check Now"
           >
             <RefreshCw className={`h-4 w-4 ${isChecking ? 'animate-spin' : ''}`} />
+          </button>
+          <button
+            onClick={() => muteMutation.mutate()}
+            disabled={muteMutation.isPending}
+            className={`p-1.5 rounded transition-colors disabled:opacity-50 ${
+              ip.notifications_muted
+                ? 'text-orange-500 hover:text-orange-600 hover:bg-orange-50'
+                : 'text-gray-500 hover:text-gray-600 hover:bg-gray-50'
+            }`}
+            title={ip.notifications_muted ? 'Unmute Notifications' : 'Mute Notifications'}
+          >
+            {ip.notifications_muted ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
           </button>
           <button
             onClick={() => onEdit(ip)}

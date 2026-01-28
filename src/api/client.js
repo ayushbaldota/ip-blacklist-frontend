@@ -96,6 +96,10 @@ export const api = {
   },
   getIPHistory: (ipAddress, params = {}) => client.get(`/ips/${encodeURIComponent(ipAddress)}/history`, { params }).then(res => res.data),
 
+  // Notification muting
+  muteIP: (ipAddress) => client.post(`/ips/${encodeURIComponent(ipAddress)}/mute`).then(res => res.data),
+  unmuteIP: (ipAddress) => client.post(`/ips/${encodeURIComponent(ipAddress)}/unmute`).then(res => res.data),
+
   // Stats
   getStats: () => client.get('/stats').then(res => res.data),
   getActivity: (params = {}) => client.get('/activity', { params }).then(res => res.data),
