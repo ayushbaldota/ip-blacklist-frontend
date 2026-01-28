@@ -100,6 +100,12 @@ export const api = {
   muteIP: (ipAddress) => client.post(`/ips/${encodeURIComponent(ipAddress)}/mute`).then(res => res.data),
   unmuteIP: (ipAddress) => client.post(`/ips/${encodeURIComponent(ipAddress)}/unmute`).then(res => res.data),
 
+  // Check-all job endpoints (background processing)
+  startCheckAll: () => client.post('/ips/check-all').then(res => res.data),
+  getCurrentCheckJob: () => client.get('/ips/check-all/current').then(res => res.data),
+  getCheckAllStatus: (jobId) => client.get(`/ips/check-all/${encodeURIComponent(jobId)}/status`).then(res => res.data),
+  cancelCheckAll: (jobId) => client.post(`/ips/check-all/${encodeURIComponent(jobId)}/cancel`).then(res => res.data),
+
   // Stats
   getStats: () => client.get('/stats').then(res => res.data),
   getActivity: (params = {}) => client.get('/activity', { params }).then(res => res.data),
