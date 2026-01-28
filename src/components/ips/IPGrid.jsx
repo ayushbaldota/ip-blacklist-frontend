@@ -216,10 +216,11 @@ function IPGrid({ ips, isLoading, onDelete }) {
   }
 
   // Global stats for ALL IPs from the stats endpoint
+  // Stats come directly as clean/blacklisted/pending (not nested under by_status)
   const totalIPs = globalStats?.active || globalStats?.total || 0
-  const globalBlacklisted = globalStats?.by_status?.blacklisted || 0
-  const globalClean = globalStats?.by_status?.clean || 0
-  const globalPending = globalStats?.by_status?.pending || 0
+  const globalBlacklisted = globalStats?.blacklisted ?? globalStats?.by_status?.blacklisted ?? 0
+  const globalClean = globalStats?.clean ?? globalStats?.by_status?.clean ?? 0
+  const globalPending = globalStats?.pending ?? globalStats?.by_status?.pending ?? 0
 
   // Current page stats (for context)
   const pageBlacklistedCount = ips.filter(ip => ip.status === 'blacklisted').length
