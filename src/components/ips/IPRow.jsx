@@ -13,7 +13,7 @@ function IPRow({ ip, onDelete, onEdit }) {
   const navigate = useNavigate()
 
   const handleViewDetails = () => {
-    navigate(`/ips/${ip.id}`)
+    navigate(`/ips/${encodeURIComponent(ip.ip_address)}`)
   }
 
   const handleDelete = (e) => {
@@ -30,7 +30,14 @@ function IPRow({ ip, onDelete, onEdit }) {
     <Table.Row onClick={handleViewDetails} className="group">
       <Table.Cell>
         <div>
-          <span className="font-mono font-medium">{ip.ip_address}</span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono font-medium">{ip.ip_address}</span>
+            {ip.name && (
+              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                {ip.name}
+              </span>
+            )}
+          </div>
           {ip.tags && ip.tags.length > 0 && (
             <div className="mt-1">
               <TagList tags={ip.tags.slice(0, 3)} size="sm" />

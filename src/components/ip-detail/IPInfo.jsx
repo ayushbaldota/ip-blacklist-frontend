@@ -17,10 +17,10 @@ function IPInfo({ ip }) {
   const queryClient = useQueryClient()
 
   const checkMutation = useMutation({
-    mutationFn: () => api.checkIP(ip.id),
+    mutationFn: () => api.checkIP(ip.ip_address),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ip', ip.id] })
-      queryClient.invalidateQueries({ queryKey: ['ip-history', ip.id] })
+      queryClient.invalidateQueries({ queryKey: ['ip', ip.ip_address] })
+      queryClient.invalidateQueries({ queryKey: ['ip-history', ip.ip_address] })
       queryClient.invalidateQueries({ queryKey: ['ips'] })
       queryClient.invalidateQueries({ queryKey: ['stats'] })
       queryClient.invalidateQueries({ queryKey: ['activity'] })
@@ -37,7 +37,14 @@ function IPInfo({ ip }) {
                 <Globe className="h-8 w-8 text-primary-600" />
               </div>
               <div>
-                <h2 className="text-2xl font-mono font-semibold">{ip.ip_address}</h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-mono font-semibold">{ip.ip_address}</h2>
+                  {ip.name && (
+                    <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                      {ip.name}
+                    </span>
+                  )}
+                </div>
                 <p className="text-gray-500">{ip.description || 'No description'}</p>
                 {ip.tags && ip.tags.length > 0 && (
                   <div className="mt-2">

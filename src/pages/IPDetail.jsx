@@ -8,11 +8,14 @@ import Loading from '../components/common/Loading'
 import Button from '../components/common/Button'
 
 function IPDetail() {
-  const { id } = useParams()
+  const { ipAddress } = useParams()
   const navigate = useNavigate()
 
-  const { data: ip, isLoading: ipLoading, error } = useIP(id)
-  const { data: historyData, isLoading: historyLoading } = useIPHistory(id, { limit: 50 })
+  // Decode the IP address from the URL (handles IPv6 and special characters)
+  const decodedIpAddress = decodeURIComponent(ipAddress)
+
+  const { data: ip, isLoading: ipLoading, error } = useIP(decodedIpAddress)
+  const { data: historyData, isLoading: historyLoading } = useIPHistory(decodedIpAddress, { limit: 50 })
 
   if (ipLoading) {
     return <Loading text="Loading IP details..." />

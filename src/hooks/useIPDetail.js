@@ -1,18 +1,27 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
 
-export function useIP(id) {
+/**
+ * Hook to fetch a single IP by its address
+ * @param {string} ipAddress - The IP address to fetch
+ */
+export function useIP(ipAddress) {
   return useQuery({
-    queryKey: ['ip', id],
-    queryFn: () => api.getIP(id),
-    enabled: !!id,
+    queryKey: ['ip', ipAddress],
+    queryFn: () => api.getIP(ipAddress),
+    enabled: !!ipAddress,
   })
 }
 
-export function useIPHistory(id, params = {}) {
+/**
+ * Hook to fetch check history for an IP
+ * @param {string} ipAddress - The IP address to fetch history for
+ * @param {object} params - Query parameters (limit, page, etc.)
+ */
+export function useIPHistory(ipAddress, params = {}) {
   return useQuery({
-    queryKey: ['ip-history', id, params],
-    queryFn: () => api.getIPHistory(id, params),
-    enabled: !!id,
+    queryKey: ['ip-history', ipAddress, params],
+    queryFn: () => api.getIPHistory(ipAddress, params),
+    enabled: !!ipAddress,
   })
 }

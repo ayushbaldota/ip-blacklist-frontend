@@ -28,7 +28,7 @@ function IPTable({ ips, isLoading, onDelete, onEdit }) {
       </Table.Head>
       <Table.Body>
         {ips.map((ip) => (
-          <IPRow key={ip.id} ip={ip} onDelete={onDelete} onEdit={onEdit} />
+          <IPRow key={ip.ip_address} ip={ip} onDelete={onDelete} onEdit={onEdit} />
         ))}
       </Table.Body>
     </Table>

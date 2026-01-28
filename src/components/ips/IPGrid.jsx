@@ -34,7 +34,7 @@ function IPGridRow({ ip, onDelete, onEdit }) {
   const queryClient = useQueryClient()
 
   const checkMutation = useMutation({
-    mutationFn: () => api.checkIP(ip.id),
+    mutationFn: () => api.checkIP(ip.ip_address),
     onMutate: () => setIsChecking(true),
     onSuccess: () => {
       setTimeout(() => {
@@ -108,10 +108,15 @@ function IPGridRow({ ip, onDelete, onEdit }) {
             )}
           </div>
 
-          {/* IP Address & Status Text */}
+          {/* IP Address, Name & Status Text */}
           <div>
             <div className="flex items-center gap-2">
               <span className="font-mono text-sm font-semibold text-gray-900">{ip.ip_address}</span>
+              {ip.name && (
+                <span className="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                  {ip.name}
+                </span>
+              )}
               {isChecking && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
             </div>
             <div className="text-xs mt-0.5">
@@ -198,8 +203,8 @@ function IPGrid({ ips, isLoading, onDelete }) {
     setCheckingAll(true)
     try {
       const toCheck = ips.slice(0, 25)
-      const ids = toCheck.map(ip => ip.id)
-      await api.bulkCheckIPs(ids)
+      const ipAddresses = toCheck.map(ip => ip.ip_address)
+      await api.bulkCheckIPs(ipAddresses)
       queryClient.invalidateQueries({ queryKey: ['ips'] })
       queryClient.invalidateQueries({ queryKey: ['stats'] })
       queryClient.invalidateQueries({ queryKey: ['activity'] })
@@ -375,7 +380,7 @@ function IPGrid({ ips, isLoading, onDelete }) {
             </thead>
             <tbody>
               {ips.map((ip) => (
-                <IPGridRow key={ip.id} ip={ip} onDelete={onDelete} onEdit={setEditingIP} />
+                <IPGridRow key={ip.ip_address} ip={ip} onDelete={onDelete} onEdit={setEditingIP} />
               ))}
             </tbody>
           </table>

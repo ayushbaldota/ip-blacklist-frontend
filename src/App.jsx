@@ -23,7 +23,7 @@ function App() {
       >
         <Route index element={<Dashboard />} />
         <Route path="ips" element={<IPList />} />
-        <Route path="ips/:id" element={<IPDetail />} />
+        <Route path="ips/:ipAddress" element={<IPDetail />} />
         <Route path="statistics" element={<Statistics />} />
         <Route path="settings" element={<Settings />} />
         <Route path="docs" element={<Documentation />} />

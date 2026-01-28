@@ -54,7 +54,7 @@ function IPList() {
 
   const confirmDelete = () => {
     if (deleteTarget) {
-      deleteMutation.mutate(deleteTarget.id)
+      deleteMutation.mutate(deleteTarget.ip_address)
     }
   }
 

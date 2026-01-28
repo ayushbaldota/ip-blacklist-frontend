@@ -8,6 +8,7 @@ import { api } from '../../api/client'
 const SUGGESTED_TAGS = ['production', 'staging', 'development', 'external', 'internal', 'mail', 'web', 'api', 'database']
 
 function EditIPModal({ isOpen, onClose, ip }) {
+  const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [tags, setTags] = useState([])
   const [error, setError] = useState('')
@@ -15,16 +16,17 @@ function EditIPModal({ isOpen, onClose, ip }) {
 
   useEffect(() => {
     if (ip) {
+      setName(ip.name || '')
       setDescription(ip.description || '')
       setTags(ip.tags || [])
     }
   }, [ip])
 
   const updateMutation = useMutation({
-    mutationFn: (data) => api.updateIP(ip.id, data),
+    mutationFn: (data) => api.updateIP(ip.ip_address, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ips'] })
-      queryClient.invalidateQueries({ queryKey: ['ip', ip.id] })
+      queryClient.invalidateQueries({ queryKey: ['ip', ip.ip_address] })
       queryClient.invalidateQueries({ queryKey: ['activity'] })
       handleClose()
     },
@@ -43,6 +45,7 @@ function EditIPModal({ isOpen, onClose, ip }) {
     setError('')
 
     updateMutation.mutate({
+      name: name || null,
       description: description || null,
       tags: tags,
     })
@@ -64,6 +67,22 @@ function EditIPModal({ isOpen, onClose, ip }) {
               className="input bg-gray-50"
               disabled
             />
+          </div>
+
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="input"
+              placeholder="Production Web Server"
+              maxLength={100}
+            />
+            <p className="text-xs text-gray-500 mt-1">A friendly name to identify this IP</p>
           </div>
 
           <div>

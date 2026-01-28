@@ -9,6 +9,7 @@ const SUGGESTED_TAGS = ['production', 'staging', 'development', 'external', 'int
 
 function AddIPModal({ isOpen, onClose }) {
   const [ipAddress, setIpAddress] = useState('')
+  const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [tags, setTags] = useState([])
   const [error, setError] = useState('')
@@ -29,6 +30,7 @@ function AddIPModal({ isOpen, onClose }) {
 
   const handleClose = () => {
     setIpAddress('')
+    setName('')
     setDescription('')
     setTags([])
     setError('')
@@ -50,6 +52,7 @@ function AddIPModal({ isOpen, onClose }) {
 
     addMutation.mutate({
       ip_address: ipAddress,
+      name: name || undefined,
       description: description || undefined,
       tags: tags.length > 0 ? tags : undefined,
     })
@@ -76,6 +79,22 @@ function AddIPModal({ isOpen, onClose }) {
           </div>
 
           <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="input"
+              placeholder="Production Web Server"
+              maxLength={100}
+            />
+            <p className="text-xs text-gray-500 mt-1">A friendly name to identify this IP</p>
+          </div>
+
+          <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
               Description
             </label>
@@ -85,7 +104,7 @@ function AddIPModal({ isOpen, onClose }) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="input"
-              placeholder="Web server, Mail server, etc."
+              placeholder="Handles HTTP traffic for main website"
             />
           </div>
 

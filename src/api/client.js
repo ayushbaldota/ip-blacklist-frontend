@@ -6,6 +6,8 @@
  * - Backend API: https://blacklistapi.atoztester.com/api/v1
  *
  * Authentication: API key via X-API-Key header
+ *
+ * Note: API uses ip_address as the identifier (not numeric ID)
  */
 import axios from 'axios'
 
@@ -26,7 +28,7 @@ const client = axios.create({
     'Content-Type': 'application/json',
   },
   paramsSerializer: {
-    indexes: null, // This makes arrays serialize as ip_ids=1&ip_ids=2 instead of ip_ids[]=1
+    indexes: null, // This makes arrays serialize as ip_addresses=1.2.3.4&ip_addresses=5.6.7.8
   },
 })
 
@@ -75,23 +77,24 @@ client.interceptors.response.use(
 )
 
 // API Functions
+// Note: All IP-specific endpoints use ip_address (string) as the identifier
 export const api = {
   // Health
   getHealth: () => client.get('/health').then(res => res.data),
 
-  // IPs
+  // IPs - use ip_address as identifier
   getIPs: (params = {}) => client.get('/ips', { params }).then(res => res.data),
-  getIP: (id) => client.get(`/ips/${id}`).then(res => res.data),
+  getIP: (ipAddress) => client.get(`/ips/${encodeURIComponent(ipAddress)}`).then(res => res.data),
   addIP: (data) => client.post('/ips', data).then(res => res.data),
   addBulkIPs: (data) => client.post('/ips/bulk', data).then(res => res.data),
-  deleteIP: (id) => client.delete(`/ips/${id}`).then(res => res.data),
-  updateIP: (id, data) => client.patch(`/ips/${id}`, data).then(res => res.data),
-  checkIP: (id) => client.post(`/ips/${id}/check`).then(res => res.data),
-  bulkCheckIPs: (ids) => {
-    const params = ids.map(id => `ip_ids=${id}`).join('&')
+  deleteIP: (ipAddress) => client.delete(`/ips/${encodeURIComponent(ipAddress)}`).then(res => res.data),
+  updateIP: (ipAddress, data) => client.patch(`/ips/${encodeURIComponent(ipAddress)}`, data).then(res => res.data),
+  checkIP: (ipAddress) => client.post(`/ips/${encodeURIComponent(ipAddress)}/check`).then(res => res.data),
+  bulkCheckIPs: (ipAddresses) => {
+    const params = ipAddresses.map(ip => `ip_addresses=${encodeURIComponent(ip)}`).join('&')
     return client.post(`/ips/bulk-check?${params}`).then(res => res.data)
   },
-  getIPHistory: (id, params = {}) => client.get(`/ips/${id}/history`, { params }).then(res => res.data),
+  getIPHistory: (ipAddress, params = {}) => client.get(`/ips/${encodeURIComponent(ipAddress)}/history`, { params }).then(res => res.data),
 
   // Stats
   getStats: () => client.get('/stats').then(res => res.data),
