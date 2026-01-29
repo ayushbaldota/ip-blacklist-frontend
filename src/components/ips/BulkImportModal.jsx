@@ -7,7 +7,7 @@ import TagInput from '../common/TagInput'
 import { api } from '../../api/client'
 
 const SUGGESTED_TAGS = ['production', 'staging', 'development', 'external', 'internal', 'mail', 'web', 'api', 'database']
-const BATCH_SIZE = 100 // API limit per request
+const BATCH_SIZE = 100
 
 function BulkImportModal({ isOpen, onClose }) {
   const [inputMode, setInputMode] = useState('textarea')

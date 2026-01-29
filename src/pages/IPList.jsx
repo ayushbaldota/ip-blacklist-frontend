@@ -11,6 +11,7 @@ import Pagination from '../components/common/Pagination'
 import AddIPModal from '../components/ips/AddIPModal'
 import BulkImportModal from '../components/ips/BulkImportModal'
 import EditIPModal from '../components/ips/EditIPModal'
+import HostnamesSection from '../components/ips/HostnamesSection'
 
 const COMMON_TAGS = ['production', 'staging', 'development', 'external', 'internal', 'mail', 'web', 'api']
 
@@ -225,6 +226,9 @@ function IPList() {
           )}
         </div>
       )}
+
+      {/* Hostnames Section - Below IP Addresses */}
+      <HostnamesSection ips={ips} isLoading={isLoading} />
 
       {/* Add IP Modal */}
       <AddIPModal
