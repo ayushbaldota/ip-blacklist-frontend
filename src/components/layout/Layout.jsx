@@ -5,6 +5,7 @@ import Header from './Header'
 const pageTitles = {
   '/': 'Dashboard',
   '/ips': 'IP Addresses',
+  '/hostnames': 'Hostnames',
   '/statistics': 'Statistics',
   '/settings': 'Settings',
 }

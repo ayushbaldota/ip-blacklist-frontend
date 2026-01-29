@@ -1,10 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Server, BarChart3, Settings, Shield, BookOpen, LogOut } from 'lucide-react'
+import { LayoutDashboard, Server, Globe, BarChart3, Settings, Shield, BookOpen, LogOut } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'IP Addresses', href: '/ips', icon: Server },
+  { name: 'Hostnames', href: '/hostnames', icon: Globe },
   { name: 'Statistics', href: '/statistics', icon: BarChart3 },
   { name: 'Documentation', href: '/docs', icon: BookOpen },
   { name: 'Settings', href: '/settings', icon: Settings },
