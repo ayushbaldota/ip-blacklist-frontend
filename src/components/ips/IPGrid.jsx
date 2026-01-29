@@ -22,6 +22,7 @@ const BLACKLIST_PROVIDERS = [
   { id: 'cbl.abuseat.org', name: 'CBL', shortName: 'CBL' },
   { id: 'bl.blocklist.de', name: 'Blocklist.de', shortName: 'BLD' },
   { id: 'dnsbl.dronebl.org', name: 'DroneBL', shortName: 'DRN' },
+  { id: 'spamsources.fabel.dk', name: 'Fabel Spamsources', shortName: 'FAB' },
 ]
 
 function IPGridRow({ ip, onDelete, onEdit }) {
@@ -48,16 +49,24 @@ function IPGridRow({ ip, onDelete, onEdit }) {
   })
 
   const blacklistSources = ip.blacklist_sources || []
+  const errorSources = ip.error_sources || []
   const blacklistedByName = new Set(blacklistSources.map(s => s.provider).filter(Boolean))
   const blacklistedByZone = new Set(blacklistSources.map(s => s.details?.zone || s.zone).filter(Boolean))
+  const errorByName = new Set(errorSources.map(s => s.provider).filter(Boolean))
+  const errorByZone = new Set(errorSources.map(s => s.details?.zone).filter(Boolean))
   const blacklistCount = blacklistSources.length
   const isBlacklisted = ip.status === 'blacklisted' || blacklistCount > 0
   const isPending = ip.status === 'pending'
 
   const getProviderStatus = (provider) => {
     if (isPending) return 'pending'
+    // Check if blacklisted
     if (blacklistedByName.has(provider.name) || blacklistedByZone.has(provider.id)) {
       return 'blacklisted'
+    }
+    // Check if there was an error (timeout, etc.) - show as pending/unknown
+    if (errorByName.has(provider.name) || errorByZone.has(provider.id)) {
+      return 'error'
     }
     return 'clean'
   }
@@ -66,7 +75,8 @@ function IPGridRow({ ip, onDelete, onEdit }) {
     switch (status) {
       case 'clean': return 'bg-green-500'
       case 'blacklisted': return 'bg-red-600 animate-pulse'
-      default: return 'bg-gray-300'
+      case 'error': return 'bg-yellow-500'  // Timeout/error - show as yellow
+      default: return 'bg-gray-300'  // pending
     }
   }
 
@@ -110,6 +120,11 @@ function IPGridRow({ ip, onDelete, onEdit }) {
               )}
               {isChecking && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
             </div>
+            {ip.isp && (
+              <div className="text-[11px] text-gray-400 truncate max-w-[220px]" title={`${ip.isp}${ip.country ? ` - ${ip.country}` : ''}`}>
+                {ip.isp} {ip.country_code && <span className="text-gray-300">({ip.country_code})</span>}
+              </div>
+            )}
             <div className="text-xs mt-0.5">
               {isBlacklisted ? (
                 <span className="text-red-600 font-medium">
@@ -132,7 +147,7 @@ function IPGridRow({ ip, onDelete, onEdit }) {
           <td key={provider.id} className="px-0.5 py-1">
             <div
               className={`h-7 w-full rounded-sm flex items-center justify-center ${getCellClass(status)} ${isListed ? 'ring-2 ring-red-700 ring-inset shadow-inner' : ''}`}
-              title={`${provider.name}: ${status === 'blacklisted' ? 'LISTED!' : status === 'clean' ? 'Clean' : 'Pending'}`}
+              title={`${provider.name}: ${status === 'blacklisted' ? 'LISTED!' : status === 'clean' ? 'Clean' : status === 'error' ? 'Timeout/Error' : 'Pending'}`}
             >
               {isListed && <span className="text-[9px] font-bold text-white drop-shadow">!</span>}
             </div>

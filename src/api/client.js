@@ -56,6 +56,12 @@ client.interceptors.response.use(
     return response
   },
   (error) => {
+    // Enhance error with user-friendly message
+    const enhanceError = (message) => {
+      error.userMessage = message
+      return error
+    }
+
     // Handle specific error cases
     if (error.response?.status === 401) {
       // Clear invalid credentials and redirect to login
@@ -66,10 +72,36 @@ client.interceptors.response.use(
       if (window.location.pathname !== '/login') {
         window.location.href = '/login'
       }
-    } else if (error.response?.status === 429) {
+      return Promise.reject(enhanceError('Authentication failed. Please log in again.'))
+    }
+
+    if (error.response?.status === 403) {
+      return Promise.reject(enhanceError('You do not have permission to perform this action.'))
+    }
+
+    if (error.response?.status === 404) {
+      return Promise.reject(enhanceError('The requested resource was not found.'))
+    }
+
+    if (error.response?.status === 429) {
       console.warn('Rate limit exceeded. Please wait before making more requests.')
-    } else if (error.code === 'ECONNABORTED') {
+      return Promise.reject(enhanceError('Too many requests. Please wait a moment and try again.'))
+    }
+
+    if (error.response?.status >= 500) {
+      console.error('Server error:', error.response.data)
+      return Promise.reject(enhanceError('Server error. Please try again later.'))
+    }
+
+    if (error.code === 'ECONNABORTED') {
       console.error('Request timeout - the server took too long to respond')
+      return Promise.reject(enhanceError('Request timed out. Please check your connection and try again.'))
+    }
+
+    if (!error.response) {
+      // Network error - no response received
+      console.error('Network error:', error.message)
+      return Promise.reject(enhanceError('Network error. Please check your internet connection.'))
     }
 
     return Promise.reject(error)

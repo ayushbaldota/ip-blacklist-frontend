@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
+import ErrorBoundary from './components/common/ErrorBoundary'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import IPList from './pages/IPList'
@@ -11,6 +12,7 @@ import Documentation from './pages/Documentation'
 
 function App() {
   return (
+    <ErrorBoundary>
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route
@@ -29,6 +31,7 @@ function App() {
         <Route path="docs" element={<Documentation />} />
       </Route>
     </Routes>
+    </ErrorBoundary>
   )
 }
 
